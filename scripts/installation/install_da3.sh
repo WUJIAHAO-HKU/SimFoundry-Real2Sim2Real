@@ -34,6 +34,7 @@ eval "$(mamba shell hook --shell bash)"
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "${SCRIPT_DIR}/faiss_gpu.sh"
 source "${SCRIPT_DIR}/git_safe.sh"
+source "${SCRIPT_DIR}/git_shallow.sh"
 project_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
 env_name="da3"
 DEFAULT=false
@@ -102,19 +103,52 @@ echo "Creating environment: $ENV_NAME"
 # Create environment
 # Can't use pip 25.3+ because it uses a separate version of setuptools which doesn't play nice
 #    with newest version of torch during source package installs
-mamba create -y -n "$ENV_NAME" python=3.11 "pip<25.3"
+if [[ ! -x "/root/data/SOA/envs/$ENV_NAME/bin/python" ]]; then
+  mamba create -y -n "$ENV_NAME" python=3.11 "pip<25.3"
+fi
 mamba activate "$ENV_NAME"
+python -c 'import sys; assert sys.version_info[:2] == (3, 11), "Use a new Python 3.11 environment for this installer."'
 
 # Install PyTorch
-pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 --index-url https://download.pytorch.org/whl/cu128 >> /dev/null
+# The local CUDA wheels are already verified. Install them without dependency
+# resolution so pip does not try to satisfy Torch metadata from the offline
+# wheel directory; the project requirements below install those dependencies.
+pip install --no-deps torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
+  --no-index --find-links /root/data/SOA/wheels
 pip install "setuptools<80"
 mamba install -y -c nvidia cuda-toolkit=12.8
+mamba install -y -c conda-forge --override-channels glm=1.0.1
 # Was pinned to tag v0.0.30 (tags are mutable); now the SHA that tag resolved to.
-pip install -v --no-build-isolation -U git+https://github.com/facebookresearch/xformers.git@4cf69f0967128217f1798de70b3e4477de138570#egg=xformers
+if [[ "${SIMFOUNDRY_BUILD_XFORMERS:-0}" == 1 ]]; then
+  pip install -v --no-build-isolation -U git+https://github.com/facebookresearch/xformers.git@4cf69f0967128217f1798de70b3e4477de138570#egg=xformers
+else
+  echo 'Using the verified xformers 0.0.30 CUDA 12.8 wheel.'
+fi
 echo "Installed PyTorch, xformers, and CUDA toolkit 12.8 for DA3"
 
-# Install gsplat (required for 3DGS rendering)
-pip install git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70 >> /dev/null
+# The verified Torch wheel is installed without dependencies. Add its small
+# runtime dependency set before building gsplat, whose setup script imports
+# Torch during metadata generation. CUDA toolkit provides the regular CUDA
+# libraries; cuSPARSELt is distributed as a Python NVIDIA wheel.
+pip install filelock typing_extensions sympy networkx jinja2 fsspec numpy ninja \
+  nvidia-cusparselt-cu12==0.6.3
+
+# Install gsplat (required for 3DGS rendering). The Git mirror used for
+# source checkouts does not support this repository's VCS fetch, so download
+# the pinned source archive through the configured EBCloud relay and install it
+# locally. The archive is cached under the shared EBCloud workspace.
+GSPLAT_COMMIT="0b4dddf04cb687367602c01196913cde6a743d70"
+GSPLAT_CACHE="/root/data/SOA/tmp/gsplat-${GSPLAT_COMMIT}.tar.gz"
+GSPLAT_SOURCE="/root/data/SOA/tmp/gsplat-${GSPLAT_COMMIT}"
+if [[ ! -s "$GSPLAT_CACHE" ]]; then
+  curl --fail --location --retry 5 --connect-timeout 20 --max-time 900 \
+    "https://github.com/nerfstudio-project/gsplat/archive/${GSPLAT_COMMIT}.tar.gz" \
+    --output "$GSPLAT_CACHE"
+fi
+if [[ ! -d "$GSPLAT_SOURCE" ]]; then
+  tar -xzf "$GSPLAT_CACHE" -C /root/data/SOA/tmp
+fi
+pip install --no-build-isolation "$GSPLAT_SOURCE" >> /dev/null
 echo "Installed gsplat for DA3"
 
 # Install pycolmap from pip
@@ -136,8 +170,7 @@ cd deps
 
 DA3_COMMIT="${DA3_COMMIT:-3d835ec1a5802d64a8b8b15f817a1ab54809bfe4}"
 if [ ! -d "Depth-Anything-3" ]; then
-  git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git
-  git -C Depth-Anything-3 checkout --detach "${DA3_COMMIT}"
+  git_clone_pinned https://github.com/ByteDance-Seed/Depth-Anything-3.git Depth-Anything-3 "${DA3_COMMIT}"
 fi
 cd Depth-Anything-3
 if [ -f "requirements.txt" ]; then

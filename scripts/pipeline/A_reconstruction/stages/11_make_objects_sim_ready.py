@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import json
 from simfoundry.utils.asset_conversion_utils import import_custom_object, import_articulated_object
-from simfoundry.models.vlm import Gemini
+from simfoundry.models.vlm import VLM_API, create_vlm
 import hydra
 import trimesh
 import random
@@ -64,7 +64,7 @@ def process_articulated_object(
     urdf_path: str,
     mesh_parts_dir: str,
     image_path: str,
-    vlm: Gemini,
+    vlm: VLM_API,
     scale: float,
 ) -> dict:
     """Process an articulated object and return per-part physical properties."""
@@ -193,7 +193,7 @@ def invalid_articulated_links(urdf_path: str, mesh_parts_dir: str) -> list[str]:
 def import_rigid_scene_object(
     *,
     cfg,
-    vlm: Gemini,
+    vlm: VLM_API,
     obj_phrase: str,
     img_fpath: str,
     mesh_path: str,
@@ -273,7 +273,7 @@ def main(cfg):
     logger.info("="*60)
 
     # Create VLM for physical property annotation
-    vlm = Gemini(
+    vlm = create_vlm(cfg,
         project=cfg.gcloud_project,
         location="global",
         model=vlm_model,

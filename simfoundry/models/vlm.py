@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import mimetypes
 import os
 import random
 import re
 import time
 from io import BytesIO
 from types import SimpleNamespace
-from openai import OpenAI
+from urllib.parse import urlsplit
+from openai import OpenAI, omit
 from PIL import Image as PILImage
 import torch
 try:
@@ -535,7 +537,10 @@ def _serialize_gpt_image_result(result):
 
 
 def _deserialize_gpt_image_result(payload):
-    return _CachedImageResponse(images_base64=payload["images_base64"])
+    images = payload["images_base64"]
+    if not images or not all(isinstance(value, str) and value for value in images):
+        raise RemoteCallFailed("Cached OpenAI image response contains no image data.")
+    return _CachedImageResponse(images_base64=images)
 
 
 def _serialize_imagen_result(result):
@@ -810,6 +815,149 @@ class Gemini(VLM_API):
         return images
 
 
+def openai_error_diagnostic(exc):
+    """Keep provider status/code without copying request data into diagnostics."""
+    status = getattr(exc, "status_code", None)
+    body = getattr(exc, "body", None)
+    error = body.get("error", body) if isinstance(body, dict) else {}
+    code = error.get("code") if isinstance(error, dict) else None
+    safe_code = str(code) if code and re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", str(code)) else "unknown"
+    return f"{type(exc).__name__} (HTTP {status or 'unknown'}, code={safe_code})"
+
+
+def _openai_call(operation, *, model, n_retries):
+    # SDK retries are disabled; auth, quota and regional errors fail immediately.
+    attempts = max(1, min(int(n_retries), 3))
+    for attempt in range(attempts):
+        try:
+            return operation()
+        except Exception as exc:
+            if isinstance(exc, RemoteCallFailed):
+                raise exc from None
+            status = getattr(exc, "status_code", None)
+            diagnostic = openai_error_diagnostic(exc)
+            if (status is not None and status < 500 and status != 408) or attempt + 1 == attempts:
+                failure = RemoteCallFailed(
+                    f"OpenAI [{model}] failed: {diagnostic}"
+                )
+                failure.status_code = status
+                raise failure from None
+            delay = backoff_sleep_s(attempt)
+            print(f"OpenAI [{model}] {diagnostic}; retrying in {delay:.1f}s", flush=True)
+            time.sleep(delay)
+
+
+class OpenAIVision(VLM_API):
+    """Text/vision Responses API adapter with provider-separated cache replay."""
+
+    def __init__(self, model="gpt-5.6-luna", api_key=None, base_url=None,
+                 reasoning_effort="high", image_detail="high", timeout_ms=180_000,
+                 max_output_tokens=16_384, client=None, verbose=False):
+        if image_detail not in {"auto", "low", "high"}:
+            raise ValueError("OpenAI image_detail must be auto, low, or high")
+        self.model = model
+        self.api_key = api_key
+        self.base_url = base_url
+        self.reasoning_effort = reasoning_effort
+        self.image_detail = image_detail
+        self.timeout_ms = timeout_ms
+        self.max_output_tokens = max_output_tokens
+        self.client = client
+        self.verbose = verbose
+
+    def __call__(self, prompt, image_paths=None, temperature=0, top_p=0,
+                 seed=0, n_retries=2, print_results=False):
+        paths = [] if image_paths is None else [image_paths] if isinstance(image_paths, (str, os.PathLike)) else list(image_paths)
+        # Reasoning models do not accept the legacy Gemini sampling/seed fields.
+        options = {"max_output_tokens": self.max_output_tokens}
+        if self.reasoning_effort:
+            options["reasoning"] = {"effort": self.reasoning_effort}
+        else:
+            options["temperature"] = temperature
+            if top_p > 0:
+                options["top_p"] = top_p
+        cache = RemoteModelCache.from_env()
+        request = {
+            "prompt": prompt, "image_inputs": image_digests(paths),
+            "image_detail": self.image_detail, "options": options,
+            "base_url": self.base_url or os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+        }
+        key = cache.key_for(provider="openai", model=self.model, request=request)
+        if cache.test_enabled:
+            return SimpleNamespace(**cache.load_response(provider="openai", key=key))
+        if cache.cache_enabled:
+            cached = cache.load_response_if_exists(provider="openai", key=key)
+            if cached is not None:
+                return SimpleNamespace(**cached)
+        if self.client is None:
+            api_key = self.api_key or os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OpenAI backend requires OPENAI_API_KEY (or an explicit api_key).")
+            self.client = OpenAI(
+                api_key=api_key, base_url=self.base_url or os.environ.get("OPENAI_BASE_URL"),
+                timeout=self.timeout_ms / 1000 if self.timeout_ms else None, max_retries=0,
+            )
+        content = [{"type": "input_text", "text": prompt}]
+        for path in paths:
+            mime = mimetypes.guess_type(os.fspath(path))[0]
+            if mime not in {"image/png", "image/jpeg", "image/webp", "image/gif"}:
+                raise ValueError(f"Unsupported OpenAI image format: {mime}")
+            content.append({
+                "type": "input_image",
+                "image_url": f"data:{mime};base64,{self.encode_image(path)}",
+                "detail": self.image_detail,
+            })
+
+        def generate():
+            response = self.client.responses.create(
+                model=self.model, input=[{"role": "user", "content": content}], **options,
+            )
+            text = self.get_result_text(response)
+            return SimpleNamespace(output_text=text, status="completed", model=self.model)
+
+        result = _openai_call(generate, model=self.model, n_retries=n_retries)
+        if print_results:
+            print(result.output_text, flush=True)
+        if cache.cache_enabled:
+            cache.store_response(provider="openai", model=self.model, key=key,
+                                 request=request, response=vars(result))
+        return result
+
+    def get_result_text(self, result):
+        status = getattr(result, "status", "completed")
+        if status != "completed":
+            raise RemoteCallFailed(f"OpenAI [{self.model}] returned an incomplete response")
+        text = getattr(result, "output_text", None)
+        if not isinstance(text, str) or not text.strip():
+            raise RemoteCallFailed(f"OpenAI [{self.model}] returned no text")
+        return text
+
+
+def create_vlm(cfg=None, *, purpose="vision", model=None, project=None,
+               location="global", backend=None, **kwargs):
+    """Resolve reconstruction provider without passing OpenAI IDs to Gemini."""
+    cfg = cfg or {}
+    backend = (backend or os.environ.get("SIMFOUNDRY_VLM_BACKEND") or cfg.get("vlm_backend", "gemini")).lower()
+    if backend == "gemini":
+        return Gemini(project=project, location=location,
+                      model=model or ("gemini-3-pro-image" if purpose == "image" else "gemini-3.1-pro-preview"), **kwargs)
+    if backend != "openai":
+        raise ValueError(f"Unknown VLM backend {backend!r}: expected openai or gemini")
+    options = cfg.get("openai", {})
+    if purpose == "image":
+        return GPT(model=os.environ.get("OPENAI_IMAGE_MODEL") or options.get("image_model", "gpt-image-1"),
+                   timeout_ms=options.get("timeout_ms", 180_000), **kwargs)
+    if purpose != "vision":
+        raise ValueError(f"Unknown VLM purpose: {purpose}")
+    return OpenAIVision(
+        model=os.environ.get("OPENAI_VISION_MODEL") or options.get("vision_model", "gpt-5.6-luna"),
+        reasoning_effort=options.get("reasoning_effort", "high"),
+        image_detail=options.get("image_detail", "high"),
+        timeout_ms=options.get("timeout_ms", 180_000),
+        max_output_tokens=options.get("max_output_tokens", 16_384), **kwargs,
+    )
+
+
 class Imagen3(VLM_API):
     """
     Class for interfacing with supported Imagen3 models
@@ -995,6 +1143,7 @@ class GPT(VLM_API):
         self,
         model="gpt-image-1",
         api_key=None,
+        timeout_ms=180_000,
     ):
         """
         Args:
@@ -1002,9 +1151,11 @@ class GPT(VLM_API):
             api_key (None or str): OpenAI API key to use. If not set, the OpenAI client falls back
                 to the OPENAI_API_KEY environment variable
         """
-        assert_valid_key(key=model, valid_keys=self.VERSIONS, name="GPT model")
+        if not model.startswith("gpt-image-"):
+            raise ValueError("GPT image editing requires a gpt-image-* model")
         self.model = model
         self.api_key = api_key
+        self.timeout_ms = timeout_ms
 
         self.client = None
 
@@ -1016,6 +1167,10 @@ class GPT(VLM_API):
         n_retries=3,
         image_shape="square",
         print_results=False,
+        image_paths=None,
+        temperature=0,
+        top_p=0,
+        seed=0,
     ):
         """
         Calls the Gemini model using the client API.
@@ -1032,7 +1187,12 @@ class GPT(VLM_API):
         Returns:
             dict: Output of the model. Valid keys are {"image", "text"} based on the desired model used
         """
-        if self.model == "gpt-image-1":
+        if image_paths is not None:
+            paths = [image_paths] if isinstance(image_paths, (str, os.PathLike)) else list(image_paths)
+            if len(paths) != 1 or image_path is not None:
+                raise ValueError("GPT image editing requires exactly one image")
+            image_path = paths[0]
+        if self.model.startswith("gpt-image-"):
             assert_valid_key(key=image_shape, valid_keys=self.IMAGE_SHAPES, name="image shape")
             cache = RemoteModelCache.from_env()
             cache_request = {
@@ -1042,10 +1202,12 @@ class GPT(VLM_API):
                 "image_shape": image_shape,
                 "size": self.IMAGE_SHAPES[image_shape],
                 "quality": "high",
-                "input_fidelity": "high",
                 "output_format": "png",
                 "background": "auto",
             }
+            fidelity = "low" if self.model == "gpt-image-1-mini" else "high"
+            if self.model.startswith("gpt-image-1"):
+                cache_request["input_fidelity"] = fidelity
             cache_key = cache.key_for(provider="gpt-image", model=self.model, request=cache_request)
             if cache.test_enabled:
                 return _deserialize_gpt_image_result(cache.load_response(provider="gpt-image", key=cache_key))
@@ -1056,45 +1218,33 @@ class GPT(VLM_API):
 
             result = None
             if self.client is None:
-                self.client = OpenAI(api_key=self.api_key)
-            budget = n_retries
-            last_exc = None
-            i = 0
-            while i < budget:
-                if result is not None:
-                    break
-                print(f"Querying GPT [{self.model}]: {i + 1} of {budget}...")
-                try:
-                    with open(image_path, "rb") as image_file:
-                        result = self.client.images.edit(
-                            model=self.model,
-                            image=image_file,
-                            prompt=prompt,
-                            n=n_images,
-                            size=self.IMAGE_SHAPES[image_shape],
-                            quality="high",
-                            input_fidelity="high",
-                            output_format="png",
-                            background="auto",
-                            # moderation="auto",
-                        )
-                except Exception as e:
-                    last_exc = e
-                    budget = handle_remote_exception(
-                        e, attempt=i, n_retries=budget, provider="GPT", model=self.model
-                    )
-                i += 1
+                api_key = self.api_key or os.environ.get("OPENAI_API_KEY")
+                if not api_key:
+                    raise ValueError("OpenAI image backend requires OPENAI_API_KEY.")
+                self.client = OpenAI(api_key=api_key, max_retries=0,
+                                     timeout=self.timeout_ms / 1000 if self.timeout_ms else None)
 
-            if result is None:
-                raise RemoteCallFailed(
-                    f"GPT [{self.model}] failed after {budget} attempts: {last_exc}"
-                ) from last_exc
+            def generate():
+                with open(image_path, "rb") as image_file:
+                    return self.client.images.edit(
+                        model=self.model,
+                        image=image_file,
+                        prompt=prompt,
+                        n=n_images,
+                        size=self.IMAGE_SHAPES[image_shape],
+                        quality="high",
+                        output_format="png",
+                        background="auto",
+                        **({"input_fidelity": fidelity} if self.model.startswith("gpt-image-1") else {}),
+                    )
+
+            result = _openai_call(generate, model=self.model, n_retries=n_retries)
+            if result is not None:
+                result = self._resolve_image_result(result, n_retries=n_retries)
 
             if print_results and result is not None:
-                for dat in result.data:
-                    image_base64 = dat.b64_json
-                    image_bytes = base64.b64decode(image_base64)
-                    PILImage.open(BytesIO(image_bytes)).show()
+                for image in self.get_result_images(result):
+                    image.show()
 
             if cache.cache_enabled and result is not None:
                 cache.store_response(
@@ -1113,8 +1263,41 @@ class GPT(VLM_API):
         # return "".join(res.text for res in result)
         raise NotImplementedError
 
+    def _resolve_image_result(self, result, n_retries):
+        images = []
+        for dat in result.data or []:
+            encoded = getattr(dat, "b64_json", None)
+            if not encoded:
+                url = getattr(dat, "url", None)
+                parsed = urlsplit(url or "")
+                if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+                    raise RemoteCallFailed("OpenAI image response has neither base64 data nor a valid HTTPS image URL.")
+                # Some compatible providers return URLs; downloads must not receive API credentials.
+                payload = _openai_call(
+                    lambda: self.client.get(url, cast_to=bytes, options={
+                        "headers": {"Authorization": omit, "OpenAI-Organization": omit, "OpenAI-Project": omit},
+                        "timeout": self.timeout_ms / 1000 if self.timeout_ms else None,
+                    }),
+                    model=self.model, n_retries=n_retries,
+                )
+                encoded = base64.b64encode(payload).decode("ascii")
+            images.append(encoded)
+        resolved = _CachedImageResponse(images_base64=images)
+        self.get_result_images(resolved)
+        return resolved
+
     def get_result_images(self, result):
-        return [PILImage.open(BytesIO(base64.b64decode(dat.b64_json))) for dat in result.data]
+        try:
+            images = []
+            for dat in result.data or []:
+                image = PILImage.open(BytesIO(base64.b64decode(dat.b64_json, validate=True)))
+                image.load()
+                images.append(image)
+            if not images:
+                raise ValueError("empty image response")
+            return images
+        except (TypeError, ValueError, OSError):
+            raise RemoteCallFailed("OpenAI image response contains no valid image data.") from None
 
 
 class FLUX1(VLM_API):

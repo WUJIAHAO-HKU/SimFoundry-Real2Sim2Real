@@ -581,6 +581,7 @@ def main(cfg):
                 photo_path=f"{cfg.s6_upsample.out_dir}/upsampled/{img_name}.png",
                 category=obj_phrase,
                 gcloud_project=cfg.gcloud_project,
+                cfg=cfg,
                 model=cfg.s8_pose.get("front_pick_model", "gemini-2.5-flash"),
                 refine=cfg.s8_pose.get("front_refine", True) and tilt_rot is not None,
             )
@@ -787,6 +788,7 @@ def main(cfg):
                                 photo_path=f"{cfg.s6_upsample.out_dir}/upsampled/{img_name}.png",
                                 category=obj_phrase,
                                 gcloud_project=cfg.gcloud_project,
+                                cfg=cfg,
                                 model=cfg.s8_pose.get("front_pick_model", "gemini-2.5-flash"),
                 refine=cfg.s8_pose.get("front_refine", True),
                             )

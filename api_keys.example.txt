@@ -1,0 +1,3 @@
+# Create api_keys.txt beside this template and give it mode 600.
+# Obtain a Gemini API key from https://aistudio.google.com/api-keys
+GEMINI_API_KEY=

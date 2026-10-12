@@ -49,3 +49,13 @@ Miniforge3-Linux-x86_64.sh
 .zprofile
 .zshrc
 scripts/experiments/
+
+# Local credentials and patch/tooling leftovers
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.orig
+*.rej
+.pytest_cache/

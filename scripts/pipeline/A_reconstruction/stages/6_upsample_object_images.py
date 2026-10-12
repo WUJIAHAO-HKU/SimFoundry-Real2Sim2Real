@@ -13,7 +13,7 @@ Don't forget to register API key from openai / Gemini CLI!
 import cv2
 import logging
 
-from simfoundry.models.vlm import GPT, FLUX1, Gemini
+from simfoundry.models.vlm import GPT, FLUX1, Gemini, create_vlm
 from simfoundry.utils.prompt_utils import prompt_upsample_image, prompt_upsample_image_rotate, \
     prompt_flux_object_completion_and_upsample_preserve, prompt_upsample_image_gemini, prompt_infill_image, prompt_infill_image_no_conditioning, \
     prompt_check_object_validity, parse_json_response
@@ -79,6 +79,9 @@ def main(cfg):
     # Create relevant client API to use
     # Calculate target ratio based on output image shape
     model_name = cfg.s6_upsample.model
+    backend = os.environ.get("SIMFOUNDRY_VLM_BACKEND") or cfg.get("vlm_backend", "gemini")
+    if backend == "openai" and "gemini" in model_name:
+        model_name = "gpt"
     logger.info(f"Using upsample model: {model_name}")
     assert_valid_key(key=model_name, valid_keys=UPSAMPLE_MODELS, name="upsample model")
     ratios = dict()
@@ -108,10 +111,7 @@ def main(cfg):
             }
         upsample_prompt = prompt_upsample_image_gemini()
     elif model_name == "gpt":
-        model = GPT(
-            model="gpt-image-1",
-            api_key=os.environ.get("OPENAI_API_KEY"),
-        )
+        model = create_vlm(cfg, purpose="image", backend="openai")
         for image_shape, resolution_str in model.IMAGE_SHAPES.items():
             out_w, out_h = [int(x) for x in resolution_str.split("x")]
             ratio = out_w / out_h
@@ -150,7 +150,7 @@ def main(cfg):
     if check_valid:
         validity_model_name = cfg.s6_upsample.validity_model
         if validity_model_name == "gemini":
-            validity_model = Gemini(
+            validity_model = create_vlm(cfg,
                 project=cfg.gcloud_project,
                 location="global",
                 model="gemini-3-pro-preview",

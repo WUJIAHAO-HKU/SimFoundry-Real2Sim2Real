@@ -52,9 +52,9 @@ def predict_floor_masks(rgb_fpath, sam3, floor_categories, floor_threshold, visu
 
 
 def predict_masks_with_llm(rgb_fpath, cfg, sam3):
-    from simfoundry.models.vlm import Gemini
+    from simfoundry.models.vlm import create_vlm
     from simfoundry.utils.prompt_utils import prompt_floor_setlist
-    vlm = Gemini(
+    vlm = create_vlm(cfg,
         project=cfg.gcloud_project,
         location="global",
         model=cfg.s3_ground.detection_model,

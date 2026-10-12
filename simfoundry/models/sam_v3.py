@@ -7,6 +7,7 @@ import torch.nn
 from simfoundry.models.text_encoder import TextEncoder
 from simfoundry.utils.processing_utils import create_polygon_from_vertices, mask_intersection_area, mask_area
 import numpy as np
+from simfoundry.models.local_checkpoints import sam3_checkpoint_kwargs
 import sam3
 from PIL import Image
 from sam3 import build_sam3_image_model
@@ -50,9 +51,9 @@ class SAM3(torch.nn.Module):
         if video:
             assert self.device == "cuda", "Must set device=cuda when using SAM3 video model!"
             gpus_to_use = range(torch.cuda.device_count()) if n_video_devices == -1 else n_video_devices
-            model = build_sam3_video_predictor(gpus_to_use=gpus_to_use)
+            model = build_sam3_video_predictor(gpus_to_use=gpus_to_use, **sam3_checkpoint_kwargs())
         else:
-            raw_model = build_sam3_image_model(bpe_path=bpe_path, enable_inst_interactivity=enable_inst_interactivity)
+            raw_model = build_sam3_image_model(bpe_path=bpe_path, enable_inst_interactivity=enable_inst_interactivity, **sam3_checkpoint_kwargs())
             model = Sam3Processor(raw_model, confidence_threshold=confidence_threshold)
         self.model = model
         self.video = video

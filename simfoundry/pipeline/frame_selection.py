@@ -559,7 +559,7 @@ def refine_with_vlm(cfg, bundle: FrameBundle, shortlist: Sequence[int], sel_cfg:
     Fail-soft by design: the heuristic ranking is already a usable answer, so a missing
     credential or a flaky remote call must not take down stage 3.
     """
-    from simfoundry.models.vlm import Gemini
+    from simfoundry.models.vlm import create_vlm
     from simfoundry.utils.prompt_utils import prompt_canonical_frame_select
 
     if len(shortlist) < 2:
@@ -569,7 +569,7 @@ def refine_with_vlm(cfg, bundle: FrameBundle, shortlist: Sequence[int], sel_cfg:
         image_fpaths = _write_vlm_candidate_images(
             bundle, shortlist, cfg.s3_ground.out_dir, int(sel_cfg["vlm_max_side"]),
         )
-        vlm = Gemini(project=cfg.gcloud_project, location="global", model=sel_cfg["vlm_model"])
+        vlm = create_vlm(cfg, project=cfg.gcloud_project, location="global", model=sel_cfg["vlm_model"])
         result = vlm(
             prompt=prompt_canonical_frame_select(len(shortlist)),
             image_paths=image_fpaths,

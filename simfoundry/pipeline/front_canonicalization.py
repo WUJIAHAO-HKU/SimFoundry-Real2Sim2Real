@@ -159,7 +159,7 @@ def applied_yaw_deg(front_azimuth_deg, target_azimuth_deg=FRONT_TARGET_AZIMUTH_D
 def canonicalize_front(mesh, render_dir, *, vlm=None, photo_path=None, category=None,
                        gcloud_project=None, model="gemini-2.5-flash", refine=False,
                        refine_span_deg=FRONT_REFINE_SPAN_DEG,
-                       refine_step_deg=FRONT_REFINE_STEP_DEG):
+                       refine_step_deg=FRONT_REFINE_STEP_DEG, cfg=None):
     """Decide the yaw rotation that puts `mesh`'s semantic front on the target axis.
 
     Two-stage: a coarse 45-degree pick of the semantic front, then (when `refine`) a
@@ -189,8 +189,8 @@ def canonicalize_front(mesh, render_dir, *, vlm=None, photo_path=None, category=
             image_paths.append(str(photo_path))
 
         if vlm is None:
-            from simfoundry.models.vlm import Gemini
-            vlm = Gemini(project=gcloud_project, location="global", model=model)
+            from simfoundry.models.vlm import create_vlm
+            vlm = create_vlm(cfg, project=gcloud_project, location="global", model=model)
         result = vlm(
             prompt=front_pick_prompt(labels, category=category, has_photo=has_photo),
             image_paths=image_paths,

@@ -33,6 +33,7 @@ eval "$(mamba shell hook --shell bash)"
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "${SCRIPT_DIR}/faiss_gpu.sh"
 source "${SCRIPT_DIR}/git_safe.sh"
+source "${SCRIPT_DIR}/git_shallow.sh"
 project_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
 env_name="simfoundry"
 DEFAULT=false
@@ -200,7 +201,8 @@ cd $PROJECT_ROOT  # Change to your project root
 
 mamba install conda-build -y
 echo "Installing PyTorch and torch-cluster"
-pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers --index-url https://download.pytorch.org/whl/${CUDA_URL_SUFFIX} >> /dev/null
+pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
+  --no-index --find-links /root/data/SOA/wheels
 # Make sure compatible setuptools is installed
 pip install "setuptools<80"
 pip install torch-cluster -f https://data.pyg.org/whl/torch-2.7.0+${CUDA_URL_SUFFIX}.html >> /dev/null
@@ -218,8 +220,7 @@ cd deps
 # Step 2.4: Install DINOv2
 DINOV2_COMMIT="${DINOV2_COMMIT:-7764ea0f912e53c92e82eb78a2a1631e92725fc8}"
 if [ ! -d "dinov2" ]; then
-  git clone https://github.com/facebookresearch/dinov2.git
-  git -C dinov2 checkout --detach "${DINOV2_COMMIT}"
+  git_clone_pinned https://github.com/facebookresearch/dinov2.git dinov2 "${DINOV2_COMMIT}"
 fi
 cd dinov2
 conda-develop .  # Do NOT run 'pip install -r requirements.txt'!!
@@ -236,8 +237,7 @@ echo "Installed CLIP"
 # Step 2.7: Install Foundation Stereo
 FOUNDATIONSTEREO_COMMIT="${FOUNDATIONSTEREO_COMMIT:-6e8806816b533e4d13ddbb95ffa907b797060a62}"
 if [ ! -d "FoundationStereo" ]; then
-  git clone https://github.com/NVlabs/FoundationStereo.git
-  git -C FoundationStereo checkout --detach "${FOUNDATIONSTEREO_COMMIT}"
+  git_clone_pinned https://github.com/NVlabs/FoundationStereo.git FoundationStereo "${FOUNDATIONSTEREO_COMMIT}"
 fi
 cd FoundationStereo
 echo "Installing Foundation Stereo"
@@ -248,19 +248,22 @@ pip install packaging ninja
 ensure_cuda_toolkit
 # pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.7cxx11abiFALSE-cp311-cp311-linux_x86_64.whl > /dev/null
 # pip install flash-attn==2.7.3 --no-build-isolation
-pip install flash-attn==2.8.3 --no-build-isolation
+if [[ -f /root/data/SOA/wheels/flash_attn-2.8.3-cp311-cp311-linux_x86_64.whl ]]; then
+  pip install --no-deps /root/data/SOA/wheels/flash_attn-2.8.3-cp311-cp311-linux_x86_64.whl
+else
+  pip install flash-attn==2.8.3 --no-build-isolation
+fi
 echo "Installed Flash Attention for Foundation Stereo"
 cd ..
 
 # Step 2.8: Install FoundationPose
 if [ ! -d "FoundationPose" ]; then
-  git clone https://github.com/NVlabs/FoundationPose.git
-  git -C FoundationPose checkout e3d597b8c6b851d053094ebd6fa240191c5238f8
+  git_clone_pinned https://github.com/NVlabs/FoundationPose.git FoundationPose e3d597b8c6b851d053094ebd6fa240191c5238f8
   git -C FoundationPose apply "${PROJECT_ROOT}/patches/FoundationPose.patch"
 fi
 cd FoundationPose
 
-pip install -r requirements.txt > /dev/null
+pip install -r <(grep -vE '^[[:space:]]*--extra-index-url' requirements.txt) > /dev/null
 # Install compiler toolchain needed for nvdiffrast.
 # kernel-headers >= 6.12 is required because pip-built C extensions (evdev) generate code by
 # scanning the HOST's /usr/include (kernel >= 6.7 constants like KEY_LINK_PHONE) but compile
@@ -278,8 +281,7 @@ fi
 cd extensions
 
 if [ ! -d "nvdiffrast" ]; then
-  git clone -b v0.4.0 https://github.com/NVlabs/nvdiffrast.git nvdiffrast
-  git -C nvdiffrast checkout --detach "${NVDIFFRAST_COMMIT:-253ac4fcea7de5f396371124af597e6cc957bfae}"
+  git_clone_pinned https://github.com/NVlabs/nvdiffrast.git nvdiffrast "${NVDIFFRAST_COMMIT:-253ac4fcea7de5f396371124af597e6cc957bfae}"
 fi
 pip install nvdiffrast/ --no-build-isolation
 cd ..
@@ -309,8 +311,7 @@ cd ..
 
 # Step 2.9: Install ml-depth-pro
 if [ ! -d "ml-depth-pro" ]; then
-  git clone https://github.com/apple/ml-depth-pro.git
-  git -C ml-depth-pro checkout 9efe5c1def37a26c5367a71df664b18e1306c708
+  git_clone_pinned https://github.com/apple/ml-depth-pro.git ml-depth-pro 9efe5c1def37a26c5367a71df664b18e1306c708
   git -C ml-depth-pro apply "${PROJECT_ROOT}/patches/ml-depth-pro.patch"
 fi
 cd ml-depth-pro
@@ -321,8 +322,7 @@ cd ..
 
 # Step 2.10: Install Prior Depth Anything
 if [ ! -d "Prior-Depth-Anything" ]; then
-  git clone https://github.com/SpatialVision/Prior-Depth-Anything.git
-  git -C Prior-Depth-Anything checkout 8c029cbca669443fe0bbf8dcefb5f91ad531084d
+  git_clone_pinned https://github.com/SpatialVision/Prior-Depth-Anything.git Prior-Depth-Anything 8c029cbca669443fe0bbf8dcefb5f91ad531084d
   git -C Prior-Depth-Anything apply "${PROJECT_ROOT}/patches/PriorDepthAnything.patch"
 fi
 cd Prior-Depth-Anything
@@ -334,8 +334,7 @@ cd ..
 # Step 2.11: Install Depth Anything 3 runtime for PDA geometric depth refinement
 DA3_COMMIT="${DA3_COMMIT:-3d835ec1a5802d64a8b8b15f817a1ab54809bfe4}"
 if [ ! -d "Depth-Anything-3" ]; then
-  git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git
-  git -C Depth-Anything-3 checkout --detach "${DA3_COMMIT}"
+  git_clone_pinned https://github.com/ByteDance-Seed/Depth-Anything-3.git Depth-Anything-3 "${DA3_COMMIT}"
 fi
 cd Depth-Anything-3
 pip install "numpy==1.26.4" moviepy==1.0.3 pycolmap plyfile e3nn evo pillow_heif fastapi uvicorn typer safetensors > /dev/null
@@ -347,10 +346,15 @@ cd ..
 # Was tracking branch feat/isaac-5.0.
 BEHAVIOR1K_COMMIT="${BEHAVIOR1K_COMMIT:-d89aae4e0e9a1de3cf8285cb9669c11d8c8bb864}"
 if [ ! -d "BEHAVIOR-1K" ]; then
-  git clone https://github.com/StanfordVL/BEHAVIOR-1K.git
+  git_clone_pinned https://github.com/StanfordVL/BEHAVIOR-1K.git BEHAVIOR-1K "${BEHAVIOR1K_COMMIT}"
 fi
 cd BEHAVIOR-1K
 git_safe_checkout_detached "." "${BEHAVIOR1K_COMMIT}" "deps/BEHAVIOR-1K"
+EBCLOUD_B1K_PATCH="${PROJECT_ROOT}/patches/BEHAVIOR-1K-ebcloud.patch"
+if [[ -f "$EBCLOUD_B1K_PATCH" ]] && ! git apply --check --reverse "$EBCLOUD_B1K_PATCH" 2>/dev/null; then
+  git apply --check "$EBCLOUD_B1K_PATCH"
+  git apply "$EBCLOUD_B1K_PATCH"
+fi
 # Detect OS architecture to choose correct gcc/g++ packages.
 # kernel-headers pin: see the toolchain install above (evdev scan/compile header mismatch).
 ARCH=$(uname -m)
@@ -369,7 +373,7 @@ cd .. # back to deps directory
 # Step 2.12: Install CUDA toolkit and pytorch3d
 ensure_cuda_toolkit
 # Was tracking the mutable 'stable' branch.
-pip install "git+https://github.com/facebookresearch/pytorch3d.git@75ebeeaea0908c5527e7b1e305fbc7681382db47"
+FORCE_CUDA=1 pip install "git+https://github.com/facebookresearch/pytorch3d.git@75ebeeaea0908c5527e7b1e305fbc7681382db47"
 pip install packaging==25 > /dev/null
 echo "Installed CUDA toolkit, pytorch3d, and packaging for SimFoundry"
 
@@ -413,8 +417,7 @@ echo "Installed coacd, pymeshlab, and evdev"
 # Step 2.14: Install SAM3
 SAM3_COMMIT="${SAM3_COMMIT:-46957e47805eaa273f4aa7bbbd25a88bca9108ce}"
 if [ ! -d "sam3" ]; then
-  git clone https://github.com/facebookresearch/sam3.git
-  git -C sam3 checkout --detach "${SAM3_COMMIT}"
+  git_clone_pinned https://github.com/facebookresearch/sam3.git sam3 "${SAM3_COMMIT}"
 fi
 cd sam3
 
@@ -520,6 +523,9 @@ pip install \
   pynput \
   pyserial \
   "rerun-sdk>=0.21.0,<0.23.0"
+# The current PyArrow releases require NumPy 2, while this environment and
+# OmniGibson's Isaac Sim bindings remain on NumPy 1.26.
+pip install --force-reinstall --no-deps "pyarrow==16.1.0"
 
 # Finally, misc dependencies
 pip install zmq

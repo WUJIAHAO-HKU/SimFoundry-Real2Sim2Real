@@ -34,6 +34,7 @@ eval "$(mamba shell hook --shell bash)"
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "${SCRIPT_DIR}/faiss_gpu.sh"
 source "${SCRIPT_DIR}/git_safe.sh"
+source "${SCRIPT_DIR}/git_shallow.sh"
 project_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
 env_name="any6d"
 DEFAULT=false
@@ -141,8 +142,7 @@ cd deps
 # Step 4.3: clone Any6D
 ANY6D_COMMIT="${ANY6D_COMMIT:-80eb4866a1c96ecb18be18836aba4f4bd6e80e9e}"
 if [ ! -d "Any6D" ]; then
-  git clone https://github.com/taeyeopl/Any6D.git
-  git -C Any6D checkout --detach "${ANY6D_COMMIT}"
+  git_clone_pinned https://github.com/taeyeopl/Any6D.git Any6D "${ANY6D_COMMIT}"
   cd Any6D
   git apply ../../patches/Any6D.patch
   cd ..
@@ -152,8 +152,11 @@ cd Any6D
 # Step 4.4: Create environment
 # Can't use pip 25.3+ because it uses a separate version of setuptools which doesn't play nice
 #    with newest version of torch during source package installs
-mamba create -y -n "$ENV_NAME" python=3.10 pip=25.2
+if [[ ! -x "/root/data/SOA/envs/$ENV_NAME/bin/python" ]]; then
+  mamba create -y -n "$ENV_NAME" python=3.11 pip=25.2
+fi
 mamba activate "$ENV_NAME"
+python -c 'import sys; assert sys.version_info[:2] == (3, 11), "Use a new Python 3.11 environment for this installer."'
 
 # Make sure CUDA_HOME points at a usable toolkit before building CUDA extensions
 ensure_cuda_toolkit
@@ -182,7 +185,8 @@ else
 fi
 
 # Step 4.5: Install PyTorch
-pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers --index-url https://download.pytorch.org/whl/cu128 >> /dev/null
+pip install --no-deps torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
+  --no-index --find-links /root/data/SOA/wheels
 echo "Installed PyTorch for Any6D"
 
 # Make sure compatible setuptools is installed

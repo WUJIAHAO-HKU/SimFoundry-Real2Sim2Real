@@ -40,7 +40,7 @@ import cv2
 import json
 import hydra
 from omegaconf import OmegaConf
-from simfoundry.models.vlm import Gemini # , Imagen3
+from simfoundry.models.vlm import create_vlm
 from simfoundry.utils.faiss_utils import l2_search
 from simfoundry.utils.processing_utils import compute_point_cloud_from_depth, pad_image_to_ratio, unpad_image, \
     dilate_mask, erode_mask, extract_numbers_from_str, denoise_obj_point_cloud, dump_json
@@ -785,7 +785,7 @@ def main(cfg):
     # cam2world_tf = np.load(cam2world_tf_fpath)
 
     # Create VLM
-    vlm = Gemini(
+    vlm = create_vlm(cfg,
         project=cfg.gcloud_project,
         location="global",
         model="gemini-2.5-flash",

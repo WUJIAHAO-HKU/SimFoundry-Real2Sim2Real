@@ -55,14 +55,14 @@ logger = logging.getLogger("generate_quadmask_for_void")
 
 
 def _gemini_propose(keyframe_path: Path, gcloud_project: str, floor_category: str,
-                    model_name: str):
-    from simfoundry.models.vlm import Gemini
+                    model_name: str, cfg=None):
+    from simfoundry.models.vlm import create_vlm
     from simfoundry.utils.prompt_utils import (
         prompt_object_setlist_specific_floorplane_v3,
         parse_json_response,
     )
 
-    vlm = Gemini(project=gcloud_project, location="global", model=model_name)
+    vlm = create_vlm(cfg, project=gcloud_project, location="global", model=model_name)
     result = vlm(
         prompt=prompt_object_setlist_specific_floorplane_v3(floor_category),
         image_paths=str(keyframe_path),
@@ -294,7 +294,7 @@ def main(cfg):
 
     # Resolve gcloud project
     gcloud_project = sec.gcloud_project
-    if gcloud_project is None:
+    if gcloud_project is None and cfg.get("vlm_backend", "gemini") == "gemini":
         gcloud_project = subprocess.run(
             ["gcloud", "config", "get-value", "project"],
             capture_output=True, text=True
@@ -304,7 +304,7 @@ def main(cfg):
     # 1) Gemini propose object names
     logger.info("Running Gemini object proposal on keyframe...")
     primary_names, full_names, detections = _gemini_propose(
-        keyframe_path, gcloud_project, sec.floor_category, sec.gemini_model
+        keyframe_path, gcloud_project, sec.floor_category, sec.gemini_model, cfg=cfg
     )
     skip_set = set(sec.skip)
     primary_names = [n for n in primary_names if n not in skip_set]

@@ -141,6 +141,13 @@ else
   echo "ERROR: patches/Hunyuan3D-2.1.patch cannot be applied cleanly." >&2
   exit 1
 fi
+EBCLOUD_PATCH="${PROJECT_ROOT}/patches/Hunyuan3D-2.1-ebcloud.patch"
+if [[ -f "$EBCLOUD_PATCH" ]]; then
+  if ! git -C "${HUNYUAN_DIR}" apply --check --reverse "$EBCLOUD_PATCH" 2>/dev/null; then
+    git -C "${HUNYUAN_DIR}" apply --check "$EBCLOUD_PATCH"
+    git -C "${HUNYUAN_DIR}" apply "$EBCLOUD_PATCH"
+  fi
+fi
 if [[ ! -f "${HUNYUAN_DIR}/requirements.txt" ]]; then
   echo "ERROR: Hunyuan3D source hydration did not produce requirements.txt." >&2
   exit 1
@@ -150,7 +157,9 @@ cd "${HUNYUAN_DIR}"
 # Step 3.4: Create environment
 # Can't use pip 25.3+ because it uses a separate version of setuptools which doesn't play nice
 #    with newest version of torch during source package installs
-mamba create -y -n "$ENV_NAME" python=3.10 pip=25.2
+if ! mamba run -n "$ENV_NAME" python -c 'import sys; assert sys.version_info[:2] == (3, 11)' >/dev/null 2>&1; then
+  mamba create -y -n "$ENV_NAME" python=3.11 pip=25.2
+fi
 mamba activate "$ENV_NAME"
 
 # Step 3.4b: Install CUDA toolkit INTO the env (provides nvcc + headers) and point the
@@ -164,8 +173,9 @@ export LIBRARY_PATH="$CONDA_PREFIX/lib/stubs:${LIBRARY_PATH:-}"
 echo "CUDA_HOME=$CUDA_HOME (nvcc: $(command -v nvcc))"
 
 # Step 3.5: Install PyTorch and Blender Python API
-pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers --index-url https://download.pytorch.org/whl/${CUDA_URL_SUFFIX} >> /dev/null
-pip install bpy==4.0 --extra-index-url https://download.blender.org/pypi/
+pip install --no-deps torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
+  --no-index --find-links /root/data/SOA/wheels
+pip install bpy==4.2.0
 
 # Make sure compatible setuptools is installed
 pip install "setuptools<80"
@@ -176,7 +186,10 @@ pip install "setuptools<80"
 #   - `deepspeed`: NOT imported anywhere in Hunyuan3D, and its setup.py needs a valid
 #     CUDA_HOME at metadata-generation time — when it failed it aborted the ENTIRE
 #     requirements install (leaving trimesh/diffusers/transformers/etc. uninstalled).
-pip install -r <(grep -viE '^[[:space:]]*(deepspeed|--extra-index-url.*(aliyun|tencent))' requirements.txt)
+pip install --no-deps 'basicsr==1.4.2'
+pip install --no-deps 'realesrgan==0.3.0'
+pip install -r <(grep -viE '^[[:space:]]*(deepspeed|tb_nightly([=<>]|$)|basicsr([=<>]|$)|realesrgan([=<>]|$)|bpy([=<>]|$)|numpy([=<>]|$)|open3d([=<>]|$)|onnxruntime([=<>]|$)|opencv-python([=<>]|$)|--extra-index-url.*(aliyun|tencent))' requirements.txt) \
+  'numpy==2.2.6' 'open3d==0.19.0' 'onnxruntime==1.19.2' 'opencv-python-headless==4.11.0.86'
 echo "Installed Hunyuan3D requirements (pypi.org index; deepspeed excluded)"
 # NOTE: the numpy-2 alignment (numpy/open3d/onnxruntime/opencv) is intentionally done LAST
 # (Step 3.9) so that no later step — faiss, requirements_hunyuan, or `pip install -e .` —

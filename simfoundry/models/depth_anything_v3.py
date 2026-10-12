@@ -76,7 +76,8 @@ class DepthAnythingV3(torch.nn.Module):
         self.device = device
 
         # Load model
-        self.model = DepthAnything3.from_pretrained(f"depth-anything/{model_name}")
+        model_path = os.environ.get("SIMFOUNDRY_DA3_CHECKPOINT", f"depth-anything/{model_name}")
+        self.model = DepthAnything3.from_pretrained(model_path)
         self.model = self.model.to(self.device)
         self.model.eval()
 

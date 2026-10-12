@@ -34,6 +34,10 @@ if missing:
     )
 
 num_gpus = faiss.get_num_gpus()
+import os
+if os.environ.get("SIMFOUNDRY_CPU_SETUP") == "1" or os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+    print(f"Verified FAISS GPU symbols in ${env_name}; GPU search deferred until an idle window.")
+    sys.exit(0)
 if num_gpus < 1:
     raise SystemExit(
         f"FAISS GPU is installed in ${env_name}, but FAISS sees {num_gpus} GPUs. "

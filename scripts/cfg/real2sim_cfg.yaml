@@ -12,7 +12,15 @@ scene_name: example_scene
 seed: 0
 visualize: false
 debug: false
-gcloud_project: ${oc.env:GCLOUD_PROJECT,null} # Google Cloud project id (required — Vertex AI backs all remote VLM stages). Reads $GCLOUD_PROJECT; replace with a literal id to hardcode it.
+gcloud_project: ${oc.env:GCLOUD_PROJECT,null} # Required only for Gemini's Vertex route.
+vlm_backend: openai
+openai:
+  vision_model: gpt-5.6-luna
+  reasoning_effort: high
+  image_model: gpt-image-2
+  image_detail: high
+  timeout_ms: 180000
+  max_output_tokens: 16384
 rerun_all: true
 low_vram: false
 
@@ -166,8 +174,8 @@ s5_scene:     # env: simfoundry
   merge_output_images: true
   crop_removal_images: true
   # vlm_model: gemini-2.5-pro     # options: gemini-2.5-pro, gemini-2.5-flash, gemini-3-pro
-  detection_model: gemini-3.1-pro-preview   # options: gemini-2.5-pro, gemini-2.5-flash, gemini-3.1-pro-preview, gemini-3-flash-preview
-  removal_model: gemini-3-pro-image     # options: gemini, gemini-3-pro-image, gemini-3-pro-image, flux
+  detection_model: gemini-3.1-pro-preview   # Gemini fallback model; ignored by OpenAI backend
+  removal_model: gemini-3-pro-image     # Gemini fallback; OpenAI backend uses openai.image_model. Also accepts gpt or flux.
   min_detection_iterations: 3
   obj_removal_prompt_order: ["mask", "outline", "bbox"]   # options: mask, outline, bbox. For FLUX, use ["outline", "bbox"], mask is not stable.
   pda_K: 5
@@ -178,7 +186,7 @@ s6_upsample:      # env: simfoundry
   out_dirname: s6_upsample
   out_dir: "${root_dir}/${scene_name}/${s6_upsample.out_dirname}"
   sam_conf_threshold: 0.1
-  model: gemini-3-pro-image     # options: gemini, gemini-2.5-flash-image, gemini-3-pro-image, gpt, flux
+  model: gemini-3-pro-image     # Gemini fallback; OpenAI backend uses openai.image_model. Also accepts gpt or flux.
   validity_model: gemini
   infill: false    # If true, infill the object before upsampling
   check_valid: false  # If true, run validity check on each upsampled object

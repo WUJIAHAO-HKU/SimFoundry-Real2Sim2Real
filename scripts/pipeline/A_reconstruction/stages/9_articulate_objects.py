@@ -12,7 +12,7 @@ This script:
 from simfoundry.utils.prompt_utils import prompt_list_articulated_objects, parse_json_response
 from simfoundry.utils.processing_utils import dump_json
 from simfoundry.utils.python_utils import sanitize_path_component
-from simfoundry.models.vlm import Gemini
+from simfoundry.models.vlm import create_vlm
 from omegaconf import OmegaConf
 from pathlib import Path
 import shutil
@@ -315,8 +315,8 @@ def main(cfg):
             logger.warning(f"Missing image for {obj_name}")
 
     # Infer articulated candidates from the source scene frame and the exact list of
-    # valid detected objects, via Vertex AI Gemini.
-    vlm = Gemini(
+    # valid detected objects, via the configured vision provider.
+    vlm = create_vlm(cfg,
         project=cfg.gcloud_project,
         location="global",
         model=cfg.s9_articulate_objects.vlm_model,

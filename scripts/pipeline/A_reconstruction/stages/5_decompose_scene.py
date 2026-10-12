@@ -21,7 +21,7 @@ from PIL import Image
 from supervision import draw_rectangle
 import shutil
 
-from simfoundry.models.vlm import Gemini, Imagen3, FLUX1
+from simfoundry.models.vlm import Gemini, Imagen3, FLUX1, GPT, create_vlm
 from simfoundry.models.sam_v3_gmask import SAM3
 from simfoundry.models.clip import CLIPEncoder
 from simfoundry.models.sbert import SBERTEncoder
@@ -507,6 +507,7 @@ def compute_object_removal_order(
 
 #TODO: handle these better
 REMOVAL_MODELS = {
+    "gpt",
     "gemini",
     "gemini-2.5-flash-image",
     "gemini-3-pro-image",
@@ -858,12 +859,10 @@ def main(cfg):
         video=False,
     )
 
-    # Object detection model: configurable via cfg.s5_scene.detection_model.
-    # Needs strong vision + structured JSON output. Uses Vertex AI Gemini and must be
-    # one of Gemini's supported model ids (DETECTION_MODELS).
+    # The resolver selects OpenAI's vision model separately from Gemini's fallback.
     detection_model_name = cfg.s5_scene.detection_model
     assert_valid_key(key=detection_model_name, valid_keys=DETECTION_MODELS, name="detection model")
-    vlm_pro = Gemini(
+    vlm_pro = create_vlm(cfg,
         project=cfg.gcloud_project,
         location="global",
         model=detection_model_name,
@@ -872,14 +871,16 @@ def main(cfg):
     # Define removal model
     removal_model_name = cfg.s5_scene.removal_model
     assert_valid_key(key=removal_model_name, valid_keys=REMOVAL_MODELS, name="removal model")
-    if removal_model_name == "gemini":
-        removal_model = Gemini(
+    if removal_model_name == "gpt":
+        removal_model = create_vlm(cfg, purpose="image", backend="openai")
+    elif removal_model_name == "gemini":
+        removal_model = create_vlm(cfg, purpose="image",
             project=cfg.gcloud_project,
             location="global",
             model="gemini-3-pro-image",
         )
     elif "gemini" in removal_model_name:
-        removal_model = Gemini(
+        removal_model = create_vlm(cfg, purpose="image",
             project=cfg.gcloud_project,
             location="global",
             model=removal_model_name,
@@ -892,6 +893,9 @@ def main(cfg):
         )
     else:
         raise NotImplementedError
+
+    if isinstance(removal_model, GPT):
+        removal_model_name = "gpt"
 
     # Create text encoder
     text_encoder = SBERTEncoder()
@@ -965,7 +969,11 @@ def main(cfg):
     original_img = np.array(Image.open(raw_imgs[scene_img_idx]))
     original_H, original_W, _ = original_img.shape
     original_ratio = original_W / original_H
-    ratio_options = {w / h: (w, h) for (w, h) in removal_model.IMAGE_SHAPES}
+    image_shapes = (
+        [tuple(map(int, size.split("x"))) for size in removal_model.IMAGE_SHAPES.values()]
+        if isinstance(removal_model, GPT) else removal_model.IMAGE_SHAPES
+    )
+    ratio_options = {w / h: (w, h) for (w, h) in image_shapes}
     ratio_differences = np.abs([original_ratio - ratio_option for ratio_option in ratio_options.keys()])
     closest_ratio = list(ratio_options.keys())[ratio_differences.argmin()]
     resolution = ratio_options[closest_ratio]
@@ -973,6 +981,12 @@ def main(cfg):
     # w_rel, h_rel = RATIO.split(":")
     target_W, target_H = resolution
     target_ratio = target_W / target_H        # W / H
+    image_edit_kwargs = {}
+    if isinstance(removal_model, GPT):
+        image_edit_kwargs["image_shape"] = next(
+            shape for shape, size in removal_model.IMAGE_SHAPES.items()
+            if size == f"{target_W}x{target_H}"
+        )
 
     resized_padded_img = cv2.resize(pad_image_to_ratio(original_img, target_ratio=target_ratio, padding_color=padding_color), resolution)
     H, W, _ = resized_padded_img.shape
@@ -994,8 +1008,9 @@ def main(cfg):
             "prompt": "Significantly improve the image resolution, highlighting fine-grained details",
             "seed": 0,
             "print_results": cfg.visualize,
+            **image_edit_kwargs,
         }
-        if "gemini" in removal_model_name:
+        if "gemini" in removal_model_name or removal_model_name == "gpt":
             logger.info(f"Calling {removal_model_name} to upsample source image (may take up to 5 min)...")
             result = removal_model(
                 image_paths=source_resized_image_fpath,
@@ -1803,8 +1818,9 @@ def main(cfg):
                     "prompt": prompt,
                     "seed": removal_seed,
                     "print_results": cfg.visualize,
+                    **image_edit_kwargs,
                 }
-                if removal_model_name == "gemini":
+                if removal_model_name in {"gemini", "gpt"}:
                     logger.info(f"Calling {removal_model_name} to remove '{obj_phrase_to_remove}' (may take up to 5 min)...")
                     result = removal_model(
                         image_paths=annotated_removal_image_fpath,

@@ -1,0 +1,45 @@
+diff --git a/setup.sh b/setup.sh
+index 46655ed..57bcee5 100755
+--- a/setup.sh
++++ b/setup.sh
+@@ -338,7 +338,8 @@ if [ "$OMNIGIBSON" = true ]; then
+             }
+ 
+             install_isaac_packages() {
+-                local temp_dir=$(mktemp -d)
++                local temp_dir=${SIMFOUNDRY_ISAAC_WHEEL_CACHE:-/root/data/SOA/wheels/isaac5.1}
++                mkdir -p "$temp_dir"
+                 local packages=(
+                     "omniverse_kit-107.3.1.206797"
+                     "isaacsim_kernel-5.1.0.0"
+@@ -375,12 +376,20 @@ if [ "$OMNIGIBSON" = true ]; then
+                     local url="https://pypi.nvidia.com/${pkg_name//_/-}/$filename"
+                     local filepath="$temp_dir/$filename"
+ 
++                    if [[ -s "$filepath" && -s "$filepath.sha256" ]] && sha256sum -c "$filepath.sha256"; then
++                        wheel_files+=("$filepath")
++                        continue
++                    fi
+                     echo "Downloading $pkg..."
+-                    if ! curl -sL "$url" -o "$filepath"; then
++                    if ! curl --noproxy 'pypi.nvidia.com,pypi.nvidia.cn' --fail --silent --show-error \
++                        --location --retry 3 --connect-timeout 20 --max-time 1800 \
++                        --continue-at - "$url" -o "$filepath.partial"; then
+                         echo "ERROR: Failed to download $pkg"
+-                        rm -rf "$temp_dir"
+                         return 1
+                     fi
++                    python -c 'import sys, zipfile; assert zipfile.is_zipfile(sys.argv[1]), "Invalid wheel archive"' "$filepath.partial"
++                    mv "$filepath.partial" "$filepath"
++                    sha256sum "$filepath" > "$filepath.sha256"
+ 
+                     # Rename for older GLIBC
+                     if check_glibc_old; then
+@@ -394,7 +403,6 @@ if [ "$OMNIGIBSON" = true ]; then
+ 
+                 echo "Installing Isaac Sim packages..."
+                 pip install "${wheel_files[@]}"
+-                rm -rf "$temp_dir"
+ 
+                 # Verify installation
+                 if ! python -c "import isaacsim" 2>/dev/null; then

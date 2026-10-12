@@ -318,6 +318,10 @@ class Hunyuan(MeshGenerator):
                 max_num_view=self.max_num_views,
                 resolution=self.resolution,
             )
+            cfg.multiview_pretrained_path = os.environ.get(
+                "SIMFOUNDRY_HUNYUAN_CHECKPOINT", cfg.multiview_pretrained_path
+            )
+            cfg.dino_ckpt_path = os.environ.get("SIMFOUNDRY_DINOV2_CHECKPOINT", cfg.dino_ckpt_path)
             cfg.realesrgan_ckpt_path = f"{self.REPO_PATH}/{cfg.realesrgan_ckpt_path}"
             cfg.multiview_cfg_path = f"{self.REPO_PATH}/{cfg.multiview_cfg_path}"
             cfg.custom_pipeline = f"{self.REPO_PATH}/{cfg.custom_pipeline}"
