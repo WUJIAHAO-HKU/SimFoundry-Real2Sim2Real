@@ -33,6 +33,7 @@ eval "$(mamba shell hook --shell bash)"
 # repo dir is grandparent directory, by default
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "${SCRIPT_DIR}/faiss_gpu.sh"
+source "${SCRIPT_DIR}/python_packages.sh"
 source "${SCRIPT_DIR}/git_safe.sh"
 source "${SCRIPT_DIR}/git_shallow.sh"
 project_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -152,7 +153,7 @@ cd Any6D
 # Step 4.4: Create environment
 # Can't use pip 25.3+ because it uses a separate version of setuptools which doesn't play nice
 #    with newest version of torch during source package installs
-if [[ ! -x "/root/data/SOA/envs/$ENV_NAME/bin/python" ]]; then
+if ! mamba env list | awk '{print $1}' | grep -Fxq "$ENV_NAME"; then
   mamba create -y -n "$ENV_NAME" python=3.11 pip=25.2
 fi
 mamba activate "$ENV_NAME"
@@ -185,8 +186,7 @@ else
 fi
 
 # Step 4.5: Install PyTorch
-pip install --no-deps torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
-  --no-index --find-links /root/data/SOA/wheels
+install_torch_stack "${CUDA_VERSION:-12.8}"
 echo "Installed PyTorch for Any6D"
 
 # Make sure compatible setuptools is installed

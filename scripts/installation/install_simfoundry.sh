@@ -32,6 +32,7 @@ eval "$(mamba shell hook --shell bash)"
 # repo dir is grandparent directory, by default
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "${SCRIPT_DIR}/faiss_gpu.sh"
+source "${SCRIPT_DIR}/python_packages.sh"
 source "${SCRIPT_DIR}/git_safe.sh"
 source "${SCRIPT_DIR}/git_shallow.sh"
 project_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -201,8 +202,7 @@ cd $PROJECT_ROOT  # Change to your project root
 
 mamba install conda-build -y
 echo "Installing PyTorch and torch-cluster"
-pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
-  --no-index --find-links /root/data/SOA/wheels
+install_torch_stack "${CUDA_VERSION:-12.8}"
 # Make sure compatible setuptools is installed
 pip install "setuptools<80"
 pip install torch-cluster -f https://data.pyg.org/whl/torch-2.7.0+${CUDA_URL_SUFFIX}.html >> /dev/null
@@ -246,13 +246,8 @@ echo "Installed Foundation Stereo"
 echo "Installing Flash Attention"
 pip install packaging ninja
 ensure_cuda_toolkit
-# pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.7cxx11abiFALSE-cp311-cp311-linux_x86_64.whl > /dev/null
-# pip install flash-attn==2.7.3 --no-build-isolation
-if [[ -f /root/data/SOA/wheels/flash_attn-2.8.3-cp311-cp311-linux_x86_64.whl ]]; then
-  pip install --no-deps /root/data/SOA/wheels/flash_attn-2.8.3-cp311-cp311-linux_x86_64.whl
-else
-  pip install flash-attn==2.8.3 --no-build-isolation
-fi
+install_flash_attention
+
 echo "Installed Flash Attention for Foundation Stereo"
 cd ..
 

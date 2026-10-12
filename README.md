@@ -93,6 +93,8 @@ bash scripts/installation/login_services.sh
 bash scripts/installation/download_checkpoints.sh --default
 ```
 
+> This fork supports online installation without `/root/data/SOA/wheels`. See the [resource inventory](docs/RESOURCES.md) for model/data download URLs, pinned pre-download commands, recorded checksums, optional caches, and unpublished experiment artifacts.
+
 > Already logged in to Hugging Face? Fold this into step 1 with `bash scripts/installation/install_everything.sh --checkpoints`.
 
 **4.** (Optional) Install the articulation pipeline:

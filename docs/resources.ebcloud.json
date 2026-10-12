@@ -1,0 +1,427 @@
+{
+  "record_date": "2026-10-12",
+  "scope": "Recorded EBCloud artifacts; not a cross-provider equivalence guarantee",
+  "models": [
+    {
+      "provider": "modelscope",
+      "repo_id": "Tencent-Hunyuan/Hunyuan3D-2.1",
+      "observed_status": "verified",
+      "verified_at": "2026-10-09T12:28:03.099777+00:00",
+      "files": [
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/unet/attn_processor.py",
+          "size": 35104,
+          "sha256": "a41bf0f79864691bc831cc2de9714f6d25baf73463ad3fdcb224dc09fe2e6705",
+          "revision": "c87940d77386bb6cf03e541c914add9ba945add9",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=c87940d77386bb6cf03e541c914add9ba945add9&FilePath=hunyuan3d-paintpbr-v2-1%2Funet%2Fattn_processor.py"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/vae/config.json",
+          "size": 553,
+          "sha256": "424117cb534ce03497c41305ed868980123917b2b6abba4bbaa615e968772903",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Fvae%2Fconfig.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/image_encoder/config.json",
+          "size": 554,
+          "sha256": "18ea44b2d65e4d08184a7beacd01704451ade33e9a0c09e54d9d68d171d91296",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Fimage_encoder%2Fconfig.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/unet/config.json",
+          "size": 911,
+          "sha256": "ce0c6d379e3b1d3e1f79338de70c80a1e36f17a6372439a8249b6fb0dfa1b608",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Funet%2Fconfig.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/text_encoder/config.json",
+          "size": 613,
+          "sha256": "7e33bfc475f6cf76e69b28b101993ca834d1f22ff4d35caefde32d63d4f42fba",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Ftext_encoder%2Fconfig.json"
+        },
+        {
+          "path": "hunyuan3d-dit-v2-1/config.yaml",
+          "size": 2078,
+          "sha256": "a9e9b66f0163a9b827d730633ac88f47fcc8e3071dcbb9ee12d88ef7537c5c6e",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-dit-v2-1%2Fconfig.yaml"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/unet/diffusion_pytorch_model.bin",
+          "size": 3925293863,
+          "sha256": "675a1b5cd0098b2002637c443946529c03c5cd54427f40245263350feb3dd5b8",
+          "revision": "3ef67a9b96251da8f9ab604475db712bea7c3bc2",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=3ef67a9b96251da8f9ab604475db712bea7c3bc2&FilePath=hunyuan3d-paintpbr-v2-1%2Funet%2Fdiffusion_pytorch_model.bin"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/vae/diffusion_pytorch_model.bin",
+          "size": 334707217,
+          "sha256": "1b4889b6b1d4ce7ae320a02dedaeff1780ad77d415ea0d744b476155c6377ddc",
+          "revision": "3ef67a9b96251da8f9ab604475db712bea7c3bc2",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=3ef67a9b96251da8f9ab604475db712bea7c3bc2&FilePath=hunyuan3d-paintpbr-v2-1%2Fvae%2Fdiffusion_pytorch_model.bin"
+        },
+        {
+          "path": "LICENSE",
+          "size": 17915,
+          "sha256": "5bd08f93b2d280bb26ff3eed5d3996fe47a9698b5f7785163928668d7fd578c6",
+          "revision": "b753cdd70750bff62518f1bd74e6266621211552",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=b753cdd70750bff62518f1bd74e6266621211552&FilePath=LICENSE"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/tokenizer/merges.txt",
+          "size": 524619,
+          "sha256": "9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Ftokenizer%2Fmerges.txt"
+        },
+        {
+          "path": "hunyuan3d-dit-v2-1/model.fp16.ckpt",
+          "size": 7366389768,
+          "sha256": "6b519fc7242f78e9b5f47ea4d55668fe3d944a2d27332f4ca68d29a6ff603f5e",
+          "revision": "3ef67a9b96251da8f9ab604475db712bea7c3bc2",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=3ef67a9b96251da8f9ab604475db712bea7c3bc2&FilePath=hunyuan3d-dit-v2-1%2Fmodel.fp16.ckpt"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/unet/model.py",
+          "size": 25514,
+          "sha256": "5d135a73c12f0d7765366a72a37264b6bcb15da1551d3e7d60526d04b5eb1dc0",
+          "revision": "c87940d77386bb6cf03e541c914add9ba945add9",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=c87940d77386bb6cf03e541c914add9ba945add9&FilePath=hunyuan3d-paintpbr-v2-1%2Funet%2Fmodel.py"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/image_encoder/model.safetensors",
+          "size": 1264217240,
+          "sha256": "ae616c24393dd1854372b0639e5541666f7521cbe219669255e865cb7f89466a",
+          "revision": "3ef67a9b96251da8f9ab604475db712bea7c3bc2",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=3ef67a9b96251da8f9ab604475db712bea7c3bc2&FilePath=hunyuan3d-paintpbr-v2-1%2Fimage_encoder%2Fmodel.safetensors"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/model_index.json",
+          "size": 617,
+          "sha256": "5b4d5d7cf32171ae93cbed10e2b775419cc2a7cd23c2c2442657c357f454801c",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Fmodel_index.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/unet/modules.py",
+          "size": 45181,
+          "sha256": "664983290a63849503c64714948d97444400bd95f24ad67e3a5dc557ba5a7a68",
+          "revision": "c87940d77386bb6cf03e541c914add9ba945add9",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=c87940d77386bb6cf03e541c914add9ba945add9&FilePath=hunyuan3d-paintpbr-v2-1%2Funet%2Fmodules.py"
+        },
+        {
+          "path": "Notice.txt",
+          "size": 16644,
+          "sha256": "ffccf6b539a82e6084d14ff064dadd22d33384d6164b07c0c5a3141810df0350",
+          "revision": "15fa6b7dd24145cbdac97058f61424c623fcf0df",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=15fa6b7dd24145cbdac97058f61424c623fcf0df&FilePath=Notice.txt"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/feature_extractor/preprocessor_config.json",
+          "size": 342,
+          "sha256": "2a1da83b5e1032aaeef397552ddb408dca0d8cd1dc58f61bf6abf38d6f33a0a2",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Ffeature_extractor%2Fpreprocessor_config.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/text_encoder/pytorch_model.bin",
+          "size": 1361671895,
+          "sha256": "c3e254d7b61353497ea0be2c4013df4ea8f739ee88cffa0ba58cd085459ed565",
+          "revision": "3ef67a9b96251da8f9ab604475db712bea7c3bc2",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=3ef67a9b96251da8f9ab604475db712bea7c3bc2&FilePath=hunyuan3d-paintpbr-v2-1%2Ftext_encoder%2Fpytorch_model.bin"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/README.md",
+          "size": 1801,
+          "sha256": "cff91f78ba939df60b532e73238a05af0e89c84f6bfb70dfe6b711d911e53c59",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2FREADME.md"
+        },
+        {
+          "path": "README.md",
+          "size": 3998,
+          "sha256": "2905a706952c6a7716599cc76de44de82c650fd787d664b9cc013da3ef422679",
+          "revision": "9f41a0c2ec5dd6481be1255b7444f14b7be06e1c",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=9f41a0c2ec5dd6481be1255b7444f14b7be06e1c&FilePath=README.md"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/scheduler/scheduler_config.json",
+          "size": 387,
+          "sha256": "9a6a7268e4d7c1bc5000450927070e338dc57a51f4530078627c88f5828e792d",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Fscheduler%2Fscheduler_config.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/tokenizer/special_tokens_map.json",
+          "size": 460,
+          "sha256": "f118ab3a983206e4f32583448de6bd6aae4ee21869135cef1f5848a753cdaab6",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Ftokenizer%2Fspecial_tokens_map.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/tokenizer/tokenizer_config.json",
+          "size": 807,
+          "sha256": "d562b18a0c6d32a168fce3d7a342fce64579ebacffb98fb71b0affc494fc32d8",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Ftokenizer%2Ftokenizer_config.json"
+        },
+        {
+          "path": "hunyuan3d-paintpbr-v2-1/tokenizer/vocab.json",
+          "size": 1059962,
+          "sha256": "e089ad92ba36837a0d31433e555c8f45fe601ab5c221d4f607ded32d9f7a4349",
+          "revision": "58eb01921bec6f1e4dcca95e24611d5ae6a580e3",
+          "source_url": "https://modelscope.cn/api/v1/models/Tencent-Hunyuan/Hunyuan3D-2.1/repo?Revision=58eb01921bec6f1e4dcca95e24611d5ae6a580e3&FilePath=hunyuan3d-paintpbr-v2-1%2Ftokenizer%2Fvocab.json"
+        }
+      ],
+      "source_page": "https://modelscope.cn/models/Tencent-Hunyuan/Hunyuan3D-2.1"
+    },
+    {
+      "provider": "modelscope",
+      "repo_id": "briaai/RMBG-2.0",
+      "observed_status": "verified",
+      "verified_at": "2026-10-09T11:47:01.664302+00:00",
+      "files": [
+        {
+          "path": "birefnet.py",
+          "size": 91403,
+          "sha256": "e499d75224b8819e985e68fb78b7a8e8c99316840474e74e16b5529f03ca2860",
+          "revision": "3ed3ed040f87210836b8a09f73c938290d84f1d1",
+          "source_url": "https://modelscope.cn/api/v1/models/briaai/RMBG-2.0/repo?Revision=3ed3ed040f87210836b8a09f73c938290d84f1d1&FilePath=birefnet.py"
+        },
+        {
+          "path": "BiRefNet_config.py",
+          "size": 298,
+          "sha256": "e7b8c2a74f6cea6a59553d517f71d47f2c1d90e670a13416af17c25fe2f3dc52",
+          "revision": "a0391e2bb475ac237cf68f57beb29f58b177304a",
+          "source_url": "https://modelscope.cn/api/v1/models/briaai/RMBG-2.0/repo?Revision=a0391e2bb475ac237cf68f57beb29f58b177304a&FilePath=BiRefNet_config.py"
+        },
+        {
+          "path": "config.json",
+          "size": 405,
+          "sha256": "c97ea21569daf66b205491a4635147dd3bc42c7c168b89d7d75b53f67ef548ae",
+          "revision": "a0391e2bb475ac237cf68f57beb29f58b177304a",
+          "source_url": "https://modelscope.cn/api/v1/models/briaai/RMBG-2.0/repo?Revision=a0391e2bb475ac237cf68f57beb29f58b177304a&FilePath=config.json"
+        },
+        {
+          "path": "model.safetensors",
+          "size": 884878856,
+          "sha256": "566ed80c3d95f87ada6864d4cbe2290a1c5eb1c7bb0b123e984f60f76b02c3a7",
+          "revision": "a0391e2bb475ac237cf68f57beb29f58b177304a",
+          "source_url": "https://modelscope.cn/api/v1/models/briaai/RMBG-2.0/repo?Revision=a0391e2bb475ac237cf68f57beb29f58b177304a&FilePath=model.safetensors"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 391,
+          "sha256": "447d9ccb2c4129ab0ca045fc293e7d79dbc45e293ac1e94818d865db77f65a54",
+          "revision": "a0391e2bb475ac237cf68f57beb29f58b177304a",
+          "source_url": "https://modelscope.cn/api/v1/models/briaai/RMBG-2.0/repo?Revision=a0391e2bb475ac237cf68f57beb29f58b177304a&FilePath=preprocessor_config.json"
+        },
+        {
+          "path": "README.md",
+          "size": 9392,
+          "sha256": "764d961aebbef88f656cfbf7a2665c2c7cd514fd159f1666d5c184b56b0993ca",
+          "revision": "3ed3ed040f87210836b8a09f73c938290d84f1d1",
+          "source_url": "https://modelscope.cn/api/v1/models/briaai/RMBG-2.0/repo?Revision=3ed3ed040f87210836b8a09f73c938290d84f1d1&FilePath=README.md"
+        }
+      ],
+      "source_page": "https://modelscope.cn/models/briaai/RMBG-2.0"
+    },
+    {
+      "provider": "modelscope",
+      "repo_id": "depth-anything/DA3NESTED-GIANT-LARGE-1.1",
+      "observed_status": "verified",
+      "verified_at": "2026-10-09T12:07:53.423623+00:00",
+      "files": [
+        {
+          "path": "config.json",
+          "size": 3113,
+          "sha256": "09adf89474017e717bc05aa86fd3a378708ba8914b036d61874eced328069468",
+          "revision": "5d43f9b50efb744fdd2f050ab3a3e56cd87dac92",
+          "source_url": "https://modelscope.cn/api/v1/models/depth-anything/DA3NESTED-GIANT-LARGE-1.1/repo?Revision=5d43f9b50efb744fdd2f050ab3a3e56cd87dac92&FilePath=config.json"
+        },
+        {
+          "path": "model.safetensors",
+          "size": 6759558100,
+          "sha256": "8ebe871a022ed58d2fc8fdfb2ebdb31d57b60fe39611c849095851a7b7c6020c",
+          "revision": "5d43f9b50efb744fdd2f050ab3a3e56cd87dac92",
+          "source_url": "https://modelscope.cn/api/v1/models/depth-anything/DA3NESTED-GIANT-LARGE-1.1/repo?Revision=5d43f9b50efb744fdd2f050ab3a3e56cd87dac92&FilePath=model.safetensors"
+        },
+        {
+          "path": "README.md",
+          "size": 4976,
+          "sha256": "9cdc3649fa40b354dd4460ac73dd3060bd5bbd8b45e17681f0c599fa12eab2e1",
+          "revision": "5d43f9b50efb744fdd2f050ab3a3e56cd87dac92",
+          "source_url": "https://modelscope.cn/api/v1/models/depth-anything/DA3NESTED-GIANT-LARGE-1.1/repo?Revision=5d43f9b50efb744fdd2f050ab3a3e56cd87dac92&FilePath=README.md"
+        }
+      ],
+      "source_page": "https://modelscope.cn/models/depth-anything/DA3NESTED-GIANT-LARGE-1.1"
+    },
+    {
+      "provider": "modelscope",
+      "repo_id": "facebook/dinov2-giant",
+      "observed_status": "verified",
+      "verified_at": "2026-10-09T12:14:33.368459+00:00",
+      "files": [
+        {
+          "path": "config.json",
+          "size": 548,
+          "sha256": "15d2e68b709674c0eb9bb5cc8b73e57ebe9a169a425bef224f46ae10053806a2",
+          "revision": "0d91d4f561fa4c9873b1c15fdf27e89b1d494bd0",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov2-giant/repo?Revision=0d91d4f561fa4c9873b1c15fdf27e89b1d494bd0&FilePath=config.json"
+        },
+        {
+          "path": "model.safetensors",
+          "size": 4546005432,
+          "sha256": "917d3c470db999d32a312f8542149be91c7cbac61ee8fb4b67ae3d82b79ce21f",
+          "revision": "1d57e316a22108851f5e208223ecd3cea4b3c0a1",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov2-giant/repo?Revision=1d57e316a22108851f5e208223ecd3cea4b3c0a1&FilePath=model.safetensors"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 436,
+          "sha256": "14e780d86fa1861f8751f868d7f45425b5feb55c38ca26f152ca5097ab30f828",
+          "revision": "0d91d4f561fa4c9873b1c15fdf27e89b1d494bd0",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov2-giant/repo?Revision=0d91d4f561fa4c9873b1c15fdf27e89b1d494bd0&FilePath=preprocessor_config.json"
+        },
+        {
+          "path": "README.md",
+          "size": 3033,
+          "sha256": "129a5b66134a5739a3c35033483ca00427f497ce5052d8cf8e2446dac19eec1b",
+          "revision": "0d91d4f561fa4c9873b1c15fdf27e89b1d494bd0",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov2-giant/repo?Revision=0d91d4f561fa4c9873b1c15fdf27e89b1d494bd0&FilePath=README.md"
+        }
+      ],
+      "source_page": "https://modelscope.cn/models/facebook/dinov2-giant"
+    },
+    {
+      "provider": "modelscope",
+      "repo_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "observed_status": "verified",
+      "verified_at": "2026-10-09T11:45:12.932693+00:00",
+      "files": [
+        {
+          "path": "config.json",
+          "size": 745,
+          "sha256": "135ecd23e34a70b6fbed8b083fdecb319b7e3a54e3d849258bbe4ddcf1783bb5",
+          "revision": "f9eebae294f741f243dbf611a5bceee5b6c18825",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov3-vitl16-pretrain-lvd1689m/repo?Revision=f9eebae294f741f243dbf611a5bceee5b6c18825&FilePath=config.json"
+        },
+        {
+          "path": "LICENSE.md",
+          "size": 7503,
+          "sha256": "25d122eb8f5b880fd23c736fb6ea8018ee45c12237e00b8a86d14c653904999e",
+          "revision": "99b6205b0321c4d9726dd072d8c6a80aa6be72df",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov3-vitl16-pretrain-lvd1689m/repo?Revision=99b6205b0321c4d9726dd072d8c6a80aa6be72df&FilePath=LICENSE.md"
+        },
+        {
+          "path": "model.safetensors",
+          "size": 1212559808,
+          "sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+          "revision": "bab39f7f4023c45534a5326e9378edc5b2016e48",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov3-vitl16-pretrain-lvd1689m/repo?Revision=bab39f7f4023c45534a5326e9378edc5b2016e48&FilePath=model.safetensors"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 585,
+          "sha256": "960c41d1f3a7778b936365769a2d90550b318a6c0a53a0296957adacfe5e0dd7",
+          "revision": "f9eebae294f741f243dbf611a5bceee5b6c18825",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov3-vitl16-pretrain-lvd1689m/repo?Revision=f9eebae294f741f243dbf611a5bceee5b6c18825&FilePath=preprocessor_config.json"
+        },
+        {
+          "path": "README.md",
+          "size": 14520,
+          "sha256": "5395522a8a611d0578b6036f47e60445381ee4b2c7508f0e93d9e4c1e876fa63",
+          "revision": "99b6205b0321c4d9726dd072d8c6a80aa6be72df",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/dinov3-vitl16-pretrain-lvd1689m/repo?Revision=99b6205b0321c4d9726dd072d8c6a80aa6be72df&FilePath=README.md"
+        }
+      ],
+      "source_page": "https://modelscope.cn/models/facebook/dinov3-vitl16-pretrain-lvd1689m"
+    },
+    {
+      "provider": "modelscope",
+      "repo_id": "facebook/sam3",
+      "observed_status": "verified",
+      "verified_at": "2026-10-09T11:42:49.889539+00:00",
+      "files": [
+        {
+          "path": "config.json",
+          "size": 25843,
+          "sha256": "4616385e4b21f2e5e22c875b65679185cbccfa95de42542b9166f7dc3d57160f",
+          "revision": "f8ee5d16d5c30d0e87b1d22cbd358ce97761df56",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/sam3/repo?Revision=f8ee5d16d5c30d0e87b1d22cbd358ce97761df56&FilePath=config.json"
+        },
+        {
+          "path": "LICENSE",
+          "size": 7352,
+          "sha256": "bec48f70bd37bf8280a9d1ebf01642d26086f6122ba735baa08fe03c5a6e7448",
+          "revision": "f8ee5d16d5c30d0e87b1d22cbd358ce97761df56",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/sam3/repo?Revision=f8ee5d16d5c30d0e87b1d22cbd358ce97761df56&FilePath=LICENSE"
+        },
+        {
+          "path": "README.md",
+          "size": 26038,
+          "sha256": "1ac8a322aa4a797db79cbc334acee7c0cae8635032b71c7d5b23ae63a05f4bd5",
+          "revision": "96f3e1b404ba14f2cfac60ee6ae87c269a7b7923",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/sam3/repo?Revision=96f3e1b404ba14f2cfac60ee6ae87c269a7b7923&FilePath=README.md"
+        },
+        {
+          "path": "sam3.pt",
+          "size": 3450062241,
+          "sha256": "9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e",
+          "revision": "f8ee5d16d5c30d0e87b1d22cbd358ce97761df56",
+          "source_url": "https://modelscope.cn/api/v1/models/facebook/sam3/repo?Revision=f8ee5d16d5c30d0e87b1d22cbd358ce97761df56&FilePath=sam3.pt"
+        }
+      ],
+      "source_page": "https://modelscope.cn/models/facebook/sam3"
+    }
+  ],
+  "auxiliary": [
+    {
+      "source_url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+      "size": 67040989,
+      "sha256": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1",
+      "file": "RealESRGAN_x4plus.pth",
+      "source_path": "models/auxiliary/RealESRGAN_x4plus.pth"
+    },
+    {
+      "source_url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx",
+      "size": 175997641,
+      "sha256": "8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491",
+      "file": "u2net.onnx",
+      "source_path": "models/auxiliary/u2net.onnx"
+    },
+    {
+      "source_url": "https://drive.google.com/drive/folders/1BEQLZH69UO5EOfah-K9bfI3JyP9Hf7wC",
+      "size": 68220109,
+      "sha256": "774700586ddc435d408fc01c9809c43e151232936369dfbea0f0f964ba471d60",
+      "file": "model_best.pth",
+      "source_path": "models/auxiliary/FoundationPose/2023-10-28-18-33-37/model_best.pth"
+    },
+    {
+      "source_url": "https://drive.google.com/drive/folders/1BEQLZH69UO5EOfah-K9bfI3JyP9Hf7wC",
+      "size": 708,
+      "sha256": "28a6ba94a33230ee5fc3c51939486281578b0972542bd9e38ca6123e75605686",
+      "file": "config.yml",
+      "source_path": "models/auxiliary/FoundationPose/2023-10-28-18-33-37/config.yml"
+    },
+    {
+      "source_url": "https://drive.google.com/drive/folders/12Te_3TELLes5cim1d7F7EBTwUSe7iRBj",
+      "size": 190229389,
+      "sha256": "81924d384bf5c26c646ee4783104982ae3d1e049c181c36641b6a7aeae494c26",
+      "file": "model_best.pth",
+      "source_path": "models/auxiliary/FoundationPose/2024-01-11-20-02-45/model_best.pth"
+    },
+    {
+      "source_url": "https://drive.google.com/drive/folders/12Te_3TELLes5cim1d7F7EBTwUSe7iRBj",
+      "size": 778,
+      "sha256": "a79db4de3b95885dd5ae86833b37b8698a75dad81e87d1086cd50b2fcd8dda3f",
+      "file": "config.yml",
+      "source_path": "models/auxiliary/FoundationPose/2024-01-11-20-02-45/config.yml"
+    }
+  ],
+  "auxiliary_checksum_note": "SHA256 records downloaded bytes; upstream reference hashes are unavailable."
+}

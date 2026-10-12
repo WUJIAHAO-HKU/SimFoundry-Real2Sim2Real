@@ -24,6 +24,7 @@ eval "$(mamba shell hook --shell bash)"
 # repo dir is grandparent directory, by default
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "${SCRIPT_DIR}/faiss_gpu.sh"
+source "${SCRIPT_DIR}/python_packages.sh"
 source "${SCRIPT_DIR}/git_safe.sh"
 project_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
 env_name="hunyuan"
@@ -173,8 +174,7 @@ export LIBRARY_PATH="$CONDA_PREFIX/lib/stubs:${LIBRARY_PATH:-}"
 echo "CUDA_HOME=$CUDA_HOME (nvcc: $(command -v nvcc))"
 
 # Step 3.5: Install PyTorch and Blender Python API
-pip install --no-deps torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
-  --no-index --find-links /root/data/SOA/wheels
+install_torch_stack "${CUDA_VERSION:-12.8}"
 pip install bpy==4.2.0
 
 # Make sure compatible setuptools is installed

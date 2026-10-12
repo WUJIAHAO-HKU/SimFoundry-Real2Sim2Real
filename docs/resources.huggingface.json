@@ -1,0 +1,197 @@
+{
+  "checked_date": "2026-10-12",
+  "revision_scope": "Official repository revisions observed today, not asserted identical to EBCloud mirror downloads",
+  "models": [
+    {
+      "repo_id": "facebook/sam3",
+      "url": "https://huggingface.co/facebook/sam3",
+      "revision": "3c879f39826c281e95690f02c7821c4de09afae7",
+      "gated": "manual",
+      "filenames": [
+        ".gitattributes",
+        "LICENSE",
+        "README.md",
+        "config.json",
+        "merges.txt",
+        "model.safetensors",
+        "processor_config.json",
+        "sam3.pt",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "vocab.json"
+      ]
+    },
+    {
+      "repo_id": "depth-anything/DA3NESTED-GIANT-LARGE-1.1",
+      "url": "https://huggingface.co/depth-anything/DA3NESTED-GIANT-LARGE-1.1",
+      "revision": "b2359bdf726fb44ef62acca04d629dcf158053e7",
+      "gated": false,
+      "filenames": [
+        ".gitattributes",
+        "README.md",
+        "config.json",
+        "model.safetensors"
+      ]
+    },
+    {
+      "repo_id": "tencent/Hunyuan3D-2.1",
+      "url": "https://huggingface.co/tencent/Hunyuan3D-2.1",
+      "revision": "0b94677654c57bb9a6b6845cd7b704ccf551d327",
+      "gated": false,
+      "filenames": [
+        ".gitattributes",
+        "LICENSE",
+        "Notice.txt",
+        "README.md",
+        "demo.py",
+        "hunyuan3d-dit-v2-1/config.yaml",
+        "hunyuan3d-dit-v2-1/model.fp16.ckpt",
+        "hunyuan3d-paintpbr-v2-1/README.md",
+        "hunyuan3d-paintpbr-v2-1/feature_extractor/preprocessor_config.json",
+        "hunyuan3d-paintpbr-v2-1/image_encoder/config.json",
+        "hunyuan3d-paintpbr-v2-1/image_encoder/model.safetensors",
+        "hunyuan3d-paintpbr-v2-1/model_index.json",
+        "hunyuan3d-paintpbr-v2-1/scheduler/scheduler_config.json",
+        "hunyuan3d-paintpbr-v2-1/text_encoder/config.json",
+        "hunyuan3d-paintpbr-v2-1/text_encoder/pytorch_model.bin",
+        "hunyuan3d-paintpbr-v2-1/tokenizer/merges.txt",
+        "hunyuan3d-paintpbr-v2-1/tokenizer/special_tokens_map.json",
+        "hunyuan3d-paintpbr-v2-1/tokenizer/tokenizer_config.json",
+        "hunyuan3d-paintpbr-v2-1/tokenizer/vocab.json",
+        "hunyuan3d-paintpbr-v2-1/unet/attn_processor.py",
+        "hunyuan3d-paintpbr-v2-1/unet/config.json",
+        "hunyuan3d-paintpbr-v2-1/unet/diffusion_pytorch_model.bin",
+        "hunyuan3d-paintpbr-v2-1/unet/model.py",
+        "hunyuan3d-paintpbr-v2-1/unet/modules.py",
+        "hunyuan3d-paintpbr-v2-1/vae/config.json",
+        "hunyuan3d-paintpbr-v2-1/vae/diffusion_pytorch_model.bin",
+        "hunyuan3d-vae-v2-1/config.yaml",
+        "hunyuan3d-vae-v2-1/model.fp16.ckpt",
+        "hy3dpaint/textureGenPipeline.py",
+        "hy3dpaint/utils/multiview_utils.py"
+      ]
+    },
+    {
+      "repo_id": "facebook/dinov2-giant",
+      "url": "https://huggingface.co/facebook/dinov2-giant",
+      "revision": "611a9d42f2335e0f921f1e313ad3c1b7178d206d",
+      "gated": false,
+      "filenames": [
+        ".gitattributes",
+        "README.md",
+        "config.json",
+        "model.safetensors",
+        "preprocessor_config.json",
+        "pytorch_model.bin"
+      ]
+    },
+    {
+      "repo_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "url": "https://huggingface.co/facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+      "gated": "manual",
+      "filenames": [
+        ".gitattributes",
+        "LICENSE.md",
+        "README.md",
+        "config.json",
+        "model.safetensors",
+        "preprocessor_config.json"
+      ]
+    },
+    {
+      "repo_id": "briaai/RMBG-2.0",
+      "url": "https://huggingface.co/briaai/RMBG-2.0",
+      "revision": "5df4c9c76d8170882c34f6986e848ee07fd0ba43",
+      "gated": "auto",
+      "filenames": [
+        ".gitattributes",
+        "BiRefNet_config.py",
+        "README.md",
+        "birefnet.py",
+        "collage5.png",
+        "config.json",
+        "diagram1.png",
+        "model.safetensors",
+        "onnx/model.onnx",
+        "onnx/model_bnb4.onnx",
+        "onnx/model_fp16.onnx",
+        "onnx/model_int8.onnx",
+        "onnx/model_q4.onnx",
+        "onnx/model_q4f16.onnx",
+        "onnx/model_quantized.onnx",
+        "onnx/model_uint8.onnx",
+        "preprocessor_config.json",
+        "pytorch_model.bin",
+        "t4.png"
+      ]
+    },
+    {
+      "repo_id": "Rain729/Prior-Depth-Anything",
+      "url": "https://huggingface.co/Rain729/Prior-Depth-Anything",
+      "revision": "25b3bfcf85209fb015e3b15259f4df8b6f13bb16",
+      "gated": false,
+      "filenames": [
+        ".gitattributes",
+        "README.md",
+        "depth_anything_v2_vitb.pth",
+        "depth_anything_v2_vitl.pth",
+        "depth_anything_v2_vits.pth",
+        "prior_depth_anything_vitb.pth",
+        "prior_depth_anything_vitb_1_1.pth",
+        "prior_depth_anything_vits.pth"
+      ]
+    },
+    {
+      "repo_id": "sentence-transformers/all-mpnet-base-v2",
+      "url": "https://huggingface.co/sentence-transformers/all-mpnet-base-v2",
+      "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+      "gated": false,
+      "filenames": [
+        ".gitattributes",
+        "1_Pooling/config.json",
+        "README.md",
+        "config.json",
+        "config_sentence_transformers.json",
+        "data_config.json",
+        "model.safetensors",
+        "modules.json",
+        "onnx/model.onnx",
+        "onnx/model_O1.onnx",
+        "onnx/model_O2.onnx",
+        "onnx/model_O3.onnx",
+        "onnx/model_O4.onnx",
+        "onnx/model_qint8_arm64.onnx",
+        "onnx/model_qint8_avx512.onnx",
+        "onnx/model_qint8_avx512_vnni.onnx",
+        "onnx/model_quint8_avx2.onnx",
+        "openvino/openvino_model.bin",
+        "openvino/openvino_model.xml",
+        "openvino/openvino_model_qint8_quantized.bin",
+        "openvino/openvino_model_qint8_quantized.xml",
+        "pytorch_model.bin",
+        "sentence_bert_config.json",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "train_script.py",
+        "vocab.txt"
+      ]
+    }
+  ],
+  "datasets": [
+    {
+      "repo_id": "nadunRanawaka1/simfoundry-assets",
+      "url": "https://huggingface.co/datasets/nadunRanawaka1/simfoundry-assets",
+      "revision": "beac75a98d99a881eacff25dd53a3ec9ce8efcfc",
+      "gated": false
+    },
+    {
+      "repo_id": "behavior-1k/omnigibson-robot-assets",
+      "url": "https://huggingface.co/datasets/behavior-1k/omnigibson-robot-assets",
+      "revision": "c325bd3b6d1560d3145f3c9c0e885e79e47f180c",
+      "gated": false
+    }
+  ]
+}

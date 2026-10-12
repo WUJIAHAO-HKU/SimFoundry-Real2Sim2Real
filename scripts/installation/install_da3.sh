@@ -33,6 +33,7 @@ eval "$(mamba shell hook --shell bash)"
 # repo dir is grandparent directory, by default
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 source "${SCRIPT_DIR}/faiss_gpu.sh"
+source "${SCRIPT_DIR}/python_packages.sh"
 source "${SCRIPT_DIR}/git_safe.sh"
 source "${SCRIPT_DIR}/git_shallow.sh"
 project_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -103,18 +104,15 @@ echo "Creating environment: $ENV_NAME"
 # Create environment
 # Can't use pip 25.3+ because it uses a separate version of setuptools which doesn't play nice
 #    with newest version of torch during source package installs
-if [[ ! -x "/root/data/SOA/envs/$ENV_NAME/bin/python" ]]; then
+if ! mamba env list | awk '{print $1}' | grep -Fxq "$ENV_NAME"; then
   mamba create -y -n "$ENV_NAME" python=3.11 "pip<25.3"
 fi
 mamba activate "$ENV_NAME"
 python -c 'import sys; assert sys.version_info[:2] == (3, 11), "Use a new Python 3.11 environment for this installer."'
 
 # Install PyTorch
-# The local CUDA wheels are already verified. Install them without dependency
-# resolution so pip does not try to satisfy Torch metadata from the offline
-# wheel directory; the project requirements below install those dependencies.
-pip install --no-deps torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 xformers==0.0.30 pillow==11.3.0 \
-  --no-index --find-links /root/data/SOA/wheels
+# Official CUDA wheels with their runtime dependencies; local cache is optional.
+install_torch_stack "${CUDA_VERSION:-12.8}"
 pip install "setuptools<80"
 mamba install -y -c nvidia cuda-toolkit=12.8
 mamba install -y -c conda-forge --override-channels glm=1.0.1
@@ -126,27 +124,22 @@ else
 fi
 echo "Installed PyTorch, xformers, and CUDA toolkit 12.8 for DA3"
 
-# The verified Torch wheel is installed without dependencies. Add its small
-# runtime dependency set before building gsplat, whose setup script imports
-# Torch during metadata generation. CUDA toolkit provides the regular CUDA
-# libraries; cuSPARSELt is distributed as a Python NVIDIA wheel.
+# Build helpers needed before gsplat imports torch at metadata-generation time.
 pip install filelock typing_extensions sympy networkx jinja2 fsspec numpy ninja \
   nvidia-cusparselt-cu12==0.6.3
 
-# Install gsplat (required for 3DGS rendering). The Git mirror used for
-# source checkouts does not support this repository's VCS fetch, so download
-# the pinned source archive through the configured EBCloud relay and install it
-# locally. The archive is cached under the shared EBCloud workspace.
+# Install pinned gsplat source; the cache can live on any writable filesystem.
 GSPLAT_COMMIT="0b4dddf04cb687367602c01196913cde6a743d70"
-GSPLAT_CACHE="/root/data/SOA/tmp/gsplat-${GSPLAT_COMMIT}.tar.gz"
-GSPLAT_SOURCE="/root/data/SOA/tmp/gsplat-${GSPLAT_COMMIT}"
-if [[ ! -s "$GSPLAT_CACHE" ]]; then
-  curl --fail --location --retry 5 --connect-timeout 20 --max-time 900 \
-    "https://github.com/nerfstudio-project/gsplat/archive/${GSPLAT_COMMIT}.tar.gz" \
-    --output "$GSPLAT_CACHE"
-fi
-if [[ ! -d "$GSPLAT_SOURCE" ]]; then
-  tar -xzf "$GSPLAT_CACHE" -C /root/data/SOA/tmp
+SOURCE_CACHE="${SIMFOUNDRY_SOURCE_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/simfoundry/sources}"
+mkdir -p "$SOURCE_CACHE"
+SOURCE_CACHE="$(cd "$SOURCE_CACHE" && pwd)"
+GSPLAT_CACHE="${SOURCE_CACHE}/gsplat-${GSPLAT_COMMIT}.tar.gz"
+GSPLAT_SOURCE="${SOURCE_CACHE}/gsplat-${GSPLAT_COMMIT}"
+cache_source_archive \
+  "https://github.com/nerfstudio-project/gsplat/archive/${GSPLAT_COMMIT}.tar.gz" \
+  "$GSPLAT_CACHE"
+if [[ ! -f "$GSPLAT_SOURCE/setup.py" ]]; then
+  tar -xzf "$GSPLAT_CACHE" -C "$SOURCE_CACHE"
 fi
 pip install --no-build-isolation "$GSPLAT_SOURCE" >> /dev/null
 echo "Installed gsplat for DA3"

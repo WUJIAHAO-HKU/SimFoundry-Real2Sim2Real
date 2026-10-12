@@ -2,6 +2,8 @@
 
 This guide covers the standard SimFoundry setup: environments, checkpoints, service logins, and optional components.
 
+For resource URLs, recorded model revisions/checksums, and installation without an EBCloud wheel cache, see [RESOURCES.md](RESOURCES.md).
+
 ## Requirements
 
 - Linux with an NVIDIA GPU
@@ -36,7 +38,7 @@ This repo uses **Git LFS** for binary assets (PNGs, GIFs) in `docs/`. Install it
 git lfs install
 
 # Then clone normally — LFS files are fetched automatically
-git clone https://github.com/NVlabs/SimFoundry.git
+git clone https://github.com/WUJIAHAO-HKU/SimFoundry-Real2Sim2Real.git
 ```
 
 If you already cloned without LFS, fetch the assets with:
@@ -223,7 +225,7 @@ hf auth login
 bash scripts/installation/download_checkpoints.sh --default
 ```
 
-The script downloads model files used by FoundationStereo/FoundationPose, SAM2/SAM3-related tools, DepthPro, Hunyuan, VOID, and related dependencies where applicable.
+The script downloads FoundationStereo, FoundationPose, SAM2.1, DepthPro, RealESRGAN, and VOID artifacts. It does not download the complete SAM3, DA3, DINOv2 or Hunyuan model repositories. Those load through their upstream model loaders; pinned pre-download commands and access requirements are documented in [RESOURCES.md](RESOURCES.md#2-核心模型与版本记录). VOID is included even when the background pipeline is not selected.
 
 If downloads are unreliable, provide a local fallback root:
 
